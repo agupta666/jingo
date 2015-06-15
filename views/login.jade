@@ -16,7 +16,11 @@ block content
       p
         a.btn-auth.btn-auth-github(href="/auth/github") Github login
 
-    if (auth.google.enabled || auth.github.enabled)
+    if (auth.gitlab.enabled)
+      p
+        a.btn.btn-primary(href="/auth/gitlab") Login with Gitlab
+
+    if (auth.google.enabled || auth.github.enabled || auth.gitlab.enabled)
       p
         a(href="/") Cancel
 

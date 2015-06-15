@@ -4,6 +4,7 @@ var router = require("express").Router(),
     passportLocal = require('passport-local'),
     passportGoogle = require('passport-google-oauth'),
     passportGithub = require('passport-github').Strategy,
+    GitlabStrategy = require('passport-gitlab').Strategy,
     tools = require("../lib/tools");
 
 var auth = app.locals.config.get("authentication");
@@ -24,6 +25,12 @@ router.get("/oauth2callback", passport.authenticate('google', {
 
 router.get("/auth/github", passport.authenticate('github'));
 router.get("/auth/github/callback", passport.authenticate('github', {
+  successRedirect: '/auth/done',
+  failureRedirect: '/login'
+}));
+
+router.get("/auth/gitlab", passport.authenticate('gitlab'));
+router.get("/auth/gitlab/callback", passport.authenticate('gitlab', {
   successRedirect: '/auth/done',
   failureRedirect: '/login'
 }));
@@ -55,6 +62,21 @@ if (auth.github.enabled) {
     },
     function(accessToken, refreshToken, profile, done) {
       usedAuthentication("github");
+      done(null, profile);
+    }
+  ));
+}
+
+if (auth.gitlab.enabled) {
+
+  passport.use(new GitlabStrategy({
+      clientID: auth.gitlab.clientId,
+      clientSecret: auth.gitlab.clientSecret,
+      gitlabURL : auth.gitlab.gitlabURL,
+      callbackURL: app.locals.baseUrl + '/auth/gitlab/callback'
+    },
+    function(accessToken, refreshToken, profile, done) {
+      usedAuthentication("gitlab");
       done(null, profile);
     }
   ));
